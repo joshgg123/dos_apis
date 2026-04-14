@@ -60,6 +60,7 @@ export default function SearchBar({ onSelect }: any) {
                 onSelect(e);
                 setQuery(e.name);
                 setEmpresas([]); // 🔥 esto cierra el dropdown
+                handleClear(); // 🔥 limpia el input para que no quede el nombre de la empresa
               }}
               className="flex items-center gap-3 p-3 hover:bg-white/10 transition cursor-pointer"
             >
