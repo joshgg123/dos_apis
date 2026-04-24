@@ -1,7 +1,18 @@
-export default function NewsList({ noticias }: any) {
+type NewsSource = { id?: string | null; name?: string | null };
+
+export type NewsApiArticle = {
+  url: string;
+  title: string;
+  description?: string | null;
+  urlToImage?: string | null;
+  publishedAt?: string | null;
+  source?: NewsSource;
+};
+
+export default function NewsList({ noticias }: { noticias: NewsApiArticle[] }) {
   return (
     <div className="grid gap-6">
-      {noticias.map((n: any, i: number) => (
+      {noticias.map((n, i) => (
         <a
           key={i}
           href={n.url}
@@ -36,7 +47,7 @@ export default function NewsList({ noticias }: any) {
 
               {/* FOOTER */}
               <div className="flex items-center justify-between mt-4 text-xs text-zinc-500">
-                <span>{n.source?.name || "Fuente desconocida"}</span>
+                <span>{n.source?.name ?? "Fuente desconocida"}</span>
                 <span>
                   {n.publishedAt
                     ? new Date(n.publishedAt).toLocaleDateString()

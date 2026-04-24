@@ -20,14 +20,22 @@ export async function GET(req: Request) {
       return Response.json([], { status: 200 }); // no rompas el frontend
     }
 
-    const data = await res.json();
-    console.log("DATA API EMPRESAS:", data);
-    // 👇 CLAVE: usar data.results
-    const empresas = (data || []).map((e: any) => ({
-      name: e.name,
-      domain: e.domain,
-      logo: e.logo_url
-    }));
+    type LogoDevSearchItem = {
+      name?: string;
+      domain?: string;
+      logo_url?: string;
+    };
+
+    const data = (await res.json()) as unknown;
+    const items = Array.isArray(data) ? (data as LogoDevSearchItem[]) : [];
+
+    const empresas = items
+      .filter((e) => Boolean(e?.name) && Boolean(e?.domain))
+      .map((e) => ({
+        name: e.name as string,
+        domain: e.domain as string,
+        logo: e.logo_url ?? null,
+      }));
 
     return Response.json(empresas);
 

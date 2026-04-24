@@ -1,20 +1,23 @@
 "use client";
 import { useState, useEffect } from "react";
 
-export default function SearchBar({ onSelect }: any) {
+type Empresa = {
+  name: string;
+  domain: string;
+  logo?: string | null;
+};
+
+export default function SearchBar({ onSelect }: { onSelect: (e: Empresa) => void }) {
   const [query, setQuery] = useState("");
-  const [empresas, setEmpresas] = useState([]);
+  const [empresas, setEmpresas] = useState<Empresa[]>([]);
 
   useEffect(() => {
-    if (!query || query.length < 2) {
-      setEmpresas([]);
-      return;
-    }
+    if (!query || query.length < 2) return;
 
     const timeout = setTimeout(() => {
       fetch(`/api/empresas?q=${query}`)
         .then(res => res.json())
-        .then(data => setEmpresas(data || []))
+        .then((data: unknown) => setEmpresas(Array.isArray(data) ? (data as Empresa[]) : []))
         .catch(() => setEmpresas([]));
     }, 300);
 
@@ -35,7 +38,11 @@ export default function SearchBar({ onSelect }: any) {
           className="w-full p-4 pr-10 rounded-xl bg-zinc-900 border border-zinc-700 outline-none focus:ring-2 ring-blue-500 placeholder:text-zinc-400"
           placeholder="Buscar empresa..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const v = e.target.value;
+            setQuery(v);
+            if (!v || v.length < 2) setEmpresas([]);
+          }}
         />
 
         {/* CLEAR BUTTON */}
@@ -53,7 +60,7 @@ export default function SearchBar({ onSelect }: any) {
       {empresas.length > 0 && (
         <div className="absolute top-full mt-2 w-full bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
           
-          {empresas.map((e: any) => (
+          {empresas.map((e) => (
             <div
               key={e.domain}
               onClick={() => {
@@ -65,7 +72,8 @@ export default function SearchBar({ onSelect }: any) {
               className="flex items-center gap-3 p-3 hover:bg-white/10 transition cursor-pointer"
             >
               <img
-                src={e.logo}
+                src={e.logo ?? ""}
+                alt=""
                 className="w-8 h-8 object-contain"
                 onError={(ev) =>
                   (ev.currentTarget.style.display = "none")
